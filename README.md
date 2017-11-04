@@ -5,7 +5,7 @@
 
 **Note**
 
-This project is related to the Airboat Shallow Water Science Agent project. See the Airboat blog for more details. 
+This project is related to the Airboat Shallow Water Science Agent project. See the [Airboat blog](https://airboat-blog.netlify.com/) for more details. 
 
 
 ### Introduction
