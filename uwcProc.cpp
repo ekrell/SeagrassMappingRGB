@@ -98,111 +98,68 @@ void sobelFilter(const Mat src, Mat &dst) {
     addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, dst);
 }
 
-
-
-void ShowManyImages(string title, int nArgs, ...) {
-int size;
-int i;
-int m, n;
-int x, y;
-
-// w - Maximum number of images in a row
-// h - Maximum number of images in a column
-int w, h;
-
-// scale - How much we have to resize the image
-float scale;
-int max;
-
-// If the number of arguments is lesser than 0 or greater than 12
-// return without displaying
-if(nArgs <= 0) {
-    printf("Number of arguments too small....\n");
-    return;
-}
-else if(nArgs > 14) {
-    printf("Number of arguments too large, can only handle maximally 12 images at a time ...\n");
-    return;
-}
-// Determine the size of the image,
-// and the number of rows/cols
-// from number of arguments
-else if (nArgs == 1) {
-    w = h = 1;
-    size = 300;
-}
-else if (nArgs == 2) {
-    w = 2; h = 1;
-    size = 300;
-}
-else if (nArgs == 3 || nArgs == 4) {
-    w = 2; h = 2;
-    size = 300;
-}
-else if (nArgs == 5 || nArgs == 6) {
-    w = 3; h = 2;
-    size = 200;
-}
-else if (nArgs == 7 || nArgs == 8) {
-    w = 4; h = 2;
-    size = 200;
-}
-else {
-    w = 4; h = 3;
-    size = 150;
+void cannyThreshold(const Mat src, Mat &dst, int lowThreshold, int highThreshold) {
+    src.copyTo (dst);
+    Canny (dst, dst, 20, 0, 3);
 }
 
-// Create a new 3 channel image
-Mat DispImage = Mat::zeros(Size(100 + size*w, 60 + size*h), CV_8UC3);
 
-// Used to get the arguments passed
-va_list args;
-va_start(args, nArgs);
 
-// Loop for nArgs number of arguments
-for (i = 0, m = 20, n = 20; i < nArgs; i++, m += (20 + size)) {
-    // Get the Pointer to the IplImage
-    Mat img = va_arg(args, Mat);
+float entropy(Mat seq, Size size, int index)
+{
+  int cnt = 0;
+  float entr = 0;
+  float total_size = size.height * size.width; //total size of all symbols in an image
 
-    // Check whether it is NULL or not
-    // If it is NULL, release the image, and return
-    if(img.empty()) {
-        printf("Invalid arguments");
-        return;
-    }
+  for(int i=0;i<index;i++)
+  {
+    float sym_occur = seq.at<float>(0, i); //the number of times a sybmol has occured
+    if(sym_occur>0) //log of zero goes to infinity
+      {
+        cnt++;
+        entr += (sym_occur/total_size)*(log2(total_size/sym_occur));
+      }
+  }
+  return entr;
 
-    // Find the width and height of the image
-    x = img.cols;
-    y = img.rows;
-
-    // Find whether height or width is greater in order to resize the image
-    max = (x > y)? x: y;
-
-    // Find the scaling factor to resize the image
-    scale = (float) ( (float) max / size );
-
-    // Used to Align the images
-    if( i % w == 0 && m!= 20) {
-        m = 20;
-        n+= 20 + size;
-    }
-
-    // Set the image ROI to display the current image
-    // Resize the input image and copy the it to the Single Big Image
-    Rect ROI(m, n, (int)( x/scale ), (int)( y/scale ));
-    Mat temp; resize(img,temp, Size(ROI.width, ROI.height));
-    temp.copyTo(DispImage(ROI));
 }
 
-// Create a new window, and show the Single Big Image
-namedWindow( title, 1 );
-imshow( title, DispImage);
-waitKey();
+// myEntropy calculates relative occurrence of different symbols within given input sequence using histogram
+Mat myEntropy(Mat seq, int histSize)
+{ 
 
-// End the number of arguments
-va_end(args);
+  float range[] = { 0, 256 } ;
+  const float* histRange = { range };
+
+  bool uniform = true; bool accumulate = false;
+
+  Mat hist;
+
+  /// Compute the histograms:
+  calcHist( &seq, 1, 0, Mat(), hist, 1, &histSize, &histRange, uniform, accumulate );
+
+  return hist;
 }
 
+double getEntropy(const Mat src) {
+    Mat hist;
+    float e;
+    
+    /// Establish the number of bins
+    int histSize = 256;
+
+    int hist_w = 512; int hist_h = 400;
+    int bin_w = cvRound( (double) hist_w/histSize );
+
+    hist = myEntropy(src, histSize);
+
+    
+    e= entropy(hist,src.size(), histSize);
+
+
+    return (double) e;
+
+}
 
 		
 

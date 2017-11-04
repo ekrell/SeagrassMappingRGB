@@ -7,4 +7,4 @@ compile: $(filename)
 	g++ -ggdb `pkg-config --cflags opencv` -o `basename $(filename) .cpp` $(filename) $(filenameLib) `pkg-config --libs opencv`
 
 run:
-	./`basename $(filename) .cpp`
+	./`basename $(filename) .cpp` > `basename $(filename) .cpp`-features.csv

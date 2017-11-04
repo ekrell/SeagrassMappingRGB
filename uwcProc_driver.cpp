@@ -23,9 +23,11 @@ int main (){
     glob(SPath, vsImageFileHandles, false);
     int iImageCount = (int) vsImageFileHandles.size(); 
 
+    /* CSV header */
+    printf ("Image,SobelMean,SobelSum,LaplacianMean,LaplacianSum,CannyMean,CannySum,CannyEntropy,HueMean,HueMax,HueMin,HueRange\n");
     
     /* Process each image sequentially */
-    Mat img, res, gray, lap, sobel, hsv;
+    Mat img, res, gray, lap, sobel, canny, hsv;
     vector<Mat> channels(3);
     vector<Mat> channelsRes(3);
     image_t imgStat;
@@ -59,9 +61,18 @@ int main (){
             laplacian(channels[j], channelsRes[j]);
         }
 
+        /* Convert to gray for edge detection */
         cvtColor(res, gray, COLOR_BGR2GRAY);
+
+        /* Edge detection of gray using Laplacian */
         laplacian(gray, lap);
+        
+        /* Edge detection of gray using Sobel */
         sobelFilter(gray, sobel);
+        
+        /* Canny edge detection */
+        cannyThreshold(gray, canny, 0, 255);
+
 
     /* Collect Image Measurements */
         
@@ -75,6 +86,11 @@ int main (){
         imgStat.laplacianMean = tempScalar[0];
         tempScalar = cv::sum(lap);
         imgStat.laplacianSum = tempScalar[0];
+        tempScalar = cv::mean(canny);
+        imgStat.cannyMean = tempScalar[0];
+        tempScalar = cv::sum(canny);
+        imgStat.cannySum = tempScalar[0];
+        imgStat.cannyEntropy = getEntropy(sobel);
 
         /*color features */
 
@@ -95,21 +111,7 @@ int main (){
         imgStat.hueMean = tempScalar[0];
         minMaxLoc (channels[0], &imgStat.hueMin, &imgStat.hueMax, NULL, NULL); 
         imgStat.hueRangeLen = imgStat.hueMax - imgStat.hueMin;
-
-
-
-
-
-
-        /* Print texture measurements */
-        printf ("%f,%f,%f,%f,", 
-                imgStat.sobelMean, imgStat.sobelSum, imgStat.laplacianMean, imgStat.laplacianSum);
-        /* Print color measurements */
-        printf ("%f,%f,%f,%f,",
-                imgStat.hueMean, imgStat.hueMax, imgStat.hueMin, imgStat.hueRangeLen);
-        printf ("\n");
-
-
+    
 
         /* Generate output file name based on original filename and output directory */
         csTemp = strdup (vsImageFileHandles[i].c_str());
@@ -120,10 +122,23 @@ int main (){
         strncpy (csOutfile, sOutputDirectory.c_str(), strlen (sOutputDirectory.c_str()));
         strcat (csOutfile, csTemp2);
         csOutfile[strlen (csTemp2) + strlen (sOutputDirectory.c_str())] = '\0';
-        printf ("%s\n", csOutfile);
+
+        /* Add CSV row */
+        printf ("%s,", csTemp2);
+        /* Print texture measurements */
+        printf ("%f,%f,%f,%f,%f,%f,%f,", 
+                imgStat.sobelMean, imgStat.sobelSum, imgStat.laplacianMean, imgStat.laplacianSum,
+                imgStat.cannyMean, imgStat.cannySum, imgStat.cannyEntropy);
+        /* Print color measurements */
+        printf ("%f,%f,%f,%f",
+                imgStat.hueMean, imgStat.hueMax, imgStat.hueMin, imgStat.hueRangeLen);
+        printf ("\n");
+
+
+
 
         /* Write result image */
-        imwrite (csOutfile, res);
+        imwrite (csOutfile, canny);
 
         /* Display */
         //ShowManyImages("Image", 3, img, res, lap);

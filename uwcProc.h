@@ -57,6 +57,9 @@ struct image_t {
     double laplacianMax;
     double laplacianMean;
     double laplacianSum;
+    double cannyMean;
+    double cannySum;
+    double cannyEntropy;
 
     /* color features */
     double Bsum;
@@ -89,6 +92,7 @@ void laplacian(const Mat src, Mat &dst);
 
 void sobelFilter(const Mat src, Mat &dst);
 
+void cannyThreshold(const Mat src, Mat &dst, int lowThreshold, int highThreshold);
 
 
 
@@ -96,6 +100,12 @@ void sobelFilter(const Mat src, Mat &dst);
     The functions in this category report information
     about an image.
 */
+
+double getEntropy(const Mat src);
+
+
+float entropy(Mat seq, Size size, int index);
+Mat myEntropy(Mat seq, int histSize);
 
 
 /* Section: Utilities 
