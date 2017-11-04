@@ -138,7 +138,7 @@ int main (){
 
 
         /* Write result image */
-        imwrite (csOutfile, canny);
+        imwrite (csOutfile, res);
 
         /* Display */
         //ShowManyImages("Image", 3, img, res, lap);
@@ -154,8 +154,6 @@ int main (){
 
     }
     
-
-
     return 0;
 }
 
