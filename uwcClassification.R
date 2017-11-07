@@ -53,7 +53,7 @@ mydata[mydata$LabelsB == 0,]$fit.cluster
 
 library (rpart)
 #fit <- rpart (LabelsA ~ SobelMean + SobelSum + HueMean + HueMax + HueMin, method = "class", data = mydata)
-fit <- rpart (LabelsA ~ CannyMean + SobelMean + HueMean + CannySum + HueRange + Entropy, method = "class", data = mydata)
+fit <- rpart (LabelsA ~ CannyMean + SobelMean + HueMean + CannySum + HueRange + CannyEntropy, method = "class", data = mydata)
 printcp(fit) # display the results
 plotcp(fit) # visualize cross-validation results
 summary(fit) # detailed summary of splits
