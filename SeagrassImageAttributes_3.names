@@ -1,0 +1,9 @@
+SobelMean,float,continuous
+SobelSum,float,continuous
+LaplacianMean,float,continuous
+LaplacianSum,float,continuous
+HueMean,float,continuous
+HueMax,float,continuous
+HueMin,float,continuous
+HueRange,float,continuous
+Type,string,class
